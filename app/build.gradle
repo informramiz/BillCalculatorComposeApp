@@ -55,17 +55,21 @@ dependencies {
     implementation 'androidx.compose.material:material'
     implementation "androidx.compose.ui:ui:"
 
-    // Compose Integration with ViewModels
+    // Compose Integrations
     implementation 'androidx.compose.runtime:runtime-livedata'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1'
 
-    // Android Studio Preview support
+    // Android Studio Preview support for Compose
     implementation 'androidx.compose.ui:ui-tooling-preview'
     debugImplementation 'androidx.compose.ui:ui-tooling'
 
+    // Ktx
     implementation 'androidx.core:core-ktx:1.10.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
-    implementation 'androidx.activity:activity-compose:1.7.0'
+    def activity_version = "1.7.0"
+    implementation "androidx.activity:activity-ktx:$activity_version"
+    implementation "androidx.activity:activity-compose:$activity_version"
+    implementation "androidx.fragment:fragment-ktx:1.5.6"
 
     // Compose Testing libraries
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:"
