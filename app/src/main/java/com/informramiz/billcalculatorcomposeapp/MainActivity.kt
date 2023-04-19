@@ -102,8 +102,12 @@ fun PerPersonBill(perPersonBill: Float = 0f) {
 
 @Composable
 fun BillCalculator() {
-    val valueState = remember {
+    val currentBillAmountState = remember {
         mutableStateOf("")
+    }
+
+    val isValidBillAmount = remember(currentBillAmountState.value) {
+            currentBillAmountState.value.trim().isNotEmpty()
     }
 
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -116,7 +120,7 @@ fun BillCalculator() {
     ) {
         Column {
             InputField(
-                valueSate = valueState,
+                valueSate = currentBillAmountState,
                 label = "Enter Bill",
                 leadingIcon = Icons.Rounded.AttachMoney,
                 modifier = Modifier
@@ -124,7 +128,7 @@ fun BillCalculator() {
                     .padding(bottom = 10.dp, start = 10.dp, end = 10.dp),
                 keyboardType = KeyboardType.Number,
                 onKeyboardAction = KeyboardActions {
-                    if (valueState.value.trim().isNotEmpty()) {
+                    if (isValidBillAmount) {
                         keyboardController?.hide()
                     }
                 }
