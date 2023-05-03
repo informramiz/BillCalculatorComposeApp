@@ -32,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.text.isDigitsOnly
 import com.informramiz.billcalculatorcomposeapp.components.InputField
 import com.informramiz.billcalculatorcomposeapp.ui.theme.BillCalculatorComposeAppTheme
 
@@ -107,9 +108,22 @@ private fun BillCalculator() {
     }
 
     val isValidBillAmount = remember(currentBillAmountState.value) {
-            currentBillAmountState.value.trim().isNotEmpty()
+        currentBillAmountState.value.isNotEmpty() && currentBillAmountState.value.isDigitsOnly()
     }
 
+    BillTextField(currentBillAmountState.value) { newBillValue ->
+        currentBillAmountState.value = newBillValue
+    }
+
+    if (isValidBillAmount) {
+        Text(text = "Valid Bill Amount")
+    } else {
+        Text(text = "Invalid Bill Amount")
+    }
+}
+
+@Composable
+private fun BillTextField(value: String, onValueChange: (String) -> Unit) {
     val keyboardController = LocalSoftwareKeyboardController.current
     Surface(
         modifier = Modifier
@@ -120,7 +134,7 @@ private fun BillCalculator() {
     ) {
         Column {
             InputField(
-                valueSate = currentBillAmountState,
+                value = value,
                 label = "Enter Bill",
                 leadingIcon = Icons.Rounded.AttachMoney,
                 modifier = Modifier
@@ -128,11 +142,11 @@ private fun BillCalculator() {
                     .padding(bottom = 10.dp, start = 10.dp, end = 10.dp),
                 keyboardType = KeyboardType.Number,
                 onKeyboardAction = KeyboardActions {
-                    if (isValidBillAmount) {
-                        keyboardController?.hide()
-                    }
+                    keyboardController?.hide()
                 }
-            )
+            ) { newValue ->
+                onValueChange(newValue.trim())
+            }
         }
     }
 }

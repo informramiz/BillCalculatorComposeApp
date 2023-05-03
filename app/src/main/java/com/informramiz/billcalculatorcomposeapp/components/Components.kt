@@ -7,7 +7,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
@@ -17,20 +16,20 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun InputField(
-    valueSate: MutableState<String>,
-    label: String,
     modifier: Modifier = Modifier,
+    value: String = "",
+    label: String,
     leadingIcon: ImageVector? = null,
     isEnabled: Boolean = true,
     isSingleLine: Boolean = true,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Next,
-    onKeyboardAction: KeyboardActions = KeyboardActions.Default
+    onKeyboardAction: KeyboardActions = KeyboardActions.Default,
+    onValueChange: (String) -> Unit
 ) {
-
     OutlinedTextField(
-        value = valueSate.value,
-        onValueChange = { valueSate.value = it },
+        value = value,
+        onValueChange = { onValueChange(it) },
         modifier = modifier,
         label = { Text(text = label) },
         textStyle = TextStyle(fontSize = 18.sp, color = MaterialTheme.colors.onBackground),
