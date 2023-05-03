@@ -8,17 +8,27 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.AttachMoney
+import androidx.compose.material.icons.rounded.Remove
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -111,20 +121,6 @@ private fun BillCalculator() {
         currentBillAmountState.value.isNotEmpty() && currentBillAmountState.value.isDigitsOnly()
     }
 
-    BillTextField(currentBillAmountState.value) { newBillValue ->
-        currentBillAmountState.value = newBillValue
-    }
-
-    if (isValidBillAmount) {
-        Text(text = "Valid Bill Amount")
-    } else {
-        Text(text = "Invalid Bill Amount")
-    }
-}
-
-@Composable
-private fun BillTextField(value: String, onValueChange: (String) -> Unit) {
-    val keyboardController = LocalSoftwareKeyboardController.current
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -132,22 +128,70 @@ private fun BillTextField(value: String, onValueChange: (String) -> Unit) {
         shape = RoundedCornerShape(8.dp),
         border = BorderStroke(1.dp, color = Color.LightGray)
     ) {
-        Column {
-            InputField(
-                value = value,
-                label = "Enter Bill",
-                leadingIcon = Icons.Rounded.AttachMoney,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 10.dp, start = 10.dp, end = 10.dp),
-                keyboardType = KeyboardType.Number,
-                onKeyboardAction = KeyboardActions {
-                    keyboardController?.hide()
-                }
-            ) { newValue ->
-                onValueChange(newValue.trim())
+        Column(modifier = Modifier.padding(10.dp)) {
+            BillTextField(currentBillAmountState.value) { newBillValue ->
+                currentBillAmountState.value = newBillValue
+            }
+
+
+            SplitBillBetweenButtons() {
+
             }
         }
+    }
+}
+
+@Composable
+fun SplitBillBetweenButtons(value: Int = 1, onValueChange: (Int) -> Unit) {
+    Row(
+        modifier = Modifier.padding(top = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(text = "Split")
+        Spacer(modifier = Modifier.weight(1f, true))
+
+        OutlinedButton(
+            modifier = Modifier.size(40.dp),
+            shape = CircleShape,
+            elevation = ButtonDefaults.elevation(),
+            contentPadding = PaddingValues(0.dp),
+            onClick = { /*TODO*/ }
+        ) {
+            Icon(imageVector = Icons.Rounded.Remove, contentDescription = "", tint = MaterialTheme.colors.onBackground)
+        }
+
+        Text(
+            modifier = Modifier.padding(horizontal = 6.dp),
+            text = "1"
+        )
+
+        OutlinedButton(
+            modifier = Modifier.size(40.dp),
+            shape = CircleShape,
+            elevation = ButtonDefaults.elevation(),
+            contentPadding = PaddingValues(0.dp),
+            onClick = { /*TODO*/ }
+        ) {
+            Icon(imageVector = Icons.Rounded.Add, contentDescription = "", tint = MaterialTheme.colors.onBackground)
+        }
+    }
+}
+
+@Composable
+private fun BillTextField(value: String, onValueChange: (String) -> Unit) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+    InputField(
+        value = value,
+        label = "Enter Bill",
+        leadingIcon = Icons.Rounded.AttachMoney,
+        modifier = Modifier
+            .fillMaxWidth(),
+        keyboardType = KeyboardType.Number,
+        onKeyboardAction = KeyboardActions {
+            keyboardController?.hide()
+        }
+    ) { newValue ->
+        onValueChange(newValue.trim())
     }
 }
 
