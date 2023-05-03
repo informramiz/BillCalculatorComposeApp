@@ -46,14 +46,14 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun ScreenContent() {
+private fun ScreenContent() {
     ScreenCanvas {
         ScreenUI()
     }
 }
 
 @Composable
-fun ScreenCanvas(content: @Composable () -> Unit) {
+private fun ScreenCanvas(content: @Composable () -> Unit) {
     BillCalculatorComposeAppTheme {
         Surface(
             modifier = Modifier
@@ -65,7 +65,7 @@ fun ScreenCanvas(content: @Composable () -> Unit) {
 }
 
 @Composable
-fun ScreenUI() {
+private  fun ScreenUI() {
     Column {
         PerPersonBill()
         BillCalculator()
@@ -73,7 +73,7 @@ fun ScreenUI() {
 }
 
 @Composable
-fun PerPersonBill(perPersonBill: Float = 0f) {
+private fun PerPersonBill(perPersonBill: Float = 0f) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -101,7 +101,7 @@ fun PerPersonBill(perPersonBill: Float = 0f) {
 
 
 @Composable
-fun BillCalculator() {
+private fun BillCalculator() {
     val currentBillAmountState = remember {
         mutableStateOf("")
     }
@@ -139,6 +139,6 @@ fun BillCalculator() {
 
 @Composable
 @Preview
-fun DefaultPreview() {
+private fun DefaultPreview() {
     ScreenContent()
 }
