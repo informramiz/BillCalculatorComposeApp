@@ -23,6 +23,7 @@ import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedButton
+import androidx.compose.material.Slider
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -114,11 +115,19 @@ private fun PerPersonBill(perPersonBill: Float = 0f) {
 @Composable
 private fun BillCalculator() {
     val currentBillAmountState = remember {
-        mutableStateOf("")
+        mutableStateOf("1")
     }
 
     val isValidBillAmount = remember(currentBillAmountState.value) {
         currentBillAmountState.value.isNotEmpty() && currentBillAmountState.value.isDigitsOnly()
+    }
+
+    val totalSplitsState = remember {
+        mutableStateOf(1)
+    }
+
+    val tipPercentageState = remember {
+        mutableStateOf(0.1f)
     }
 
     Surface(
@@ -133,46 +142,23 @@ private fun BillCalculator() {
                 currentBillAmountState.value = newBillValue
             }
 
+            if (!isValidBillAmount) return@Column
 
-            SplitBillBetweenButtons() {
-
+            SplitBillBetweenButtons(value = totalSplitsState.value) { newValue ->
+                totalSplitsState.value = newValue
             }
-        }
-    }
-}
 
-@Composable
-fun SplitBillBetweenButtons(value: Int = 1, onValueChange: (Int) -> Unit) {
-    Row(
-        modifier = Modifier.padding(top = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(text = "Split")
-        Spacer(modifier = Modifier.weight(1f, true))
+            TipValue(value = tipPercentageState.value * currentBillAmountState.value.toFloat())
 
-        OutlinedButton(
-            modifier = Modifier.size(40.dp),
-            shape = CircleShape,
-            elevation = ButtonDefaults.elevation(),
-            contentPadding = PaddingValues(0.dp),
-            onClick = { /*TODO*/ }
-        ) {
-            Icon(imageVector = Icons.Rounded.Remove, contentDescription = "", tint = MaterialTheme.colors.onBackground)
-        }
+            Text(
+                text = "${tipPercentageState.value * 100}%",
+                Modifier.padding(top = 12.dp, bottom = 12.dp)
+                    .align(Alignment.CenterHorizontally)
+            )
 
-        Text(
-            modifier = Modifier.padding(horizontal = 6.dp),
-            text = "1"
-        )
-
-        OutlinedButton(
-            modifier = Modifier.size(40.dp),
-            shape = CircleShape,
-            elevation = ButtonDefaults.elevation(),
-            contentPadding = PaddingValues(0.dp),
-            onClick = { /*TODO*/ }
-        ) {
-            Icon(imageVector = Icons.Rounded.Add, contentDescription = "", tint = MaterialTheme.colors.onBackground)
+            TipPercentageBar(tipPercentageState.value) { newValue ->
+                tipPercentageState.value = newValue
+            }
         }
     }
 }
@@ -193,6 +179,66 @@ private fun BillTextField(value: String, onValueChange: (String) -> Unit) {
     ) { newValue ->
         onValueChange(newValue.trim())
     }
+}
+
+@Composable
+private fun SplitBillBetweenButtons(value: Int, onValueChange: (Int) -> Unit) {
+    val validValue = if (value >= 1) value else 1
+    Row(
+        modifier = Modifier.padding(top = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(text = "Split")
+        Spacer(modifier = Modifier.weight(1f, true))
+
+        OutlinedButton(
+            modifier = Modifier.size(40.dp),
+            shape = CircleShape,
+            elevation = ButtonDefaults.elevation(),
+            contentPadding = PaddingValues(0.dp),
+            onClick = { onValueChange(validValue + 1) }
+        ) {
+            Icon(imageVector = Icons.Rounded.Remove, contentDescription = "", tint = MaterialTheme.colors.onBackground)
+        }
+
+        Text(
+            modifier = Modifier.padding(horizontal = 6.dp),
+            text = "$validValue"
+        )
+
+        OutlinedButton(
+            modifier = Modifier.size(40.dp),
+            shape = CircleShape,
+            elevation = ButtonDefaults.elevation(),
+            contentPadding = PaddingValues(0.dp),
+            onClick = {
+                if (validValue > 1) {
+                    onValueChange(validValue - 1)
+                } else {
+                    onValueChange(validValue)
+                }
+            }
+        ) {
+            Icon(imageVector = Icons.Rounded.Add, contentDescription = "", tint = MaterialTheme.colors.onBackground)
+        }
+    }
+}
+
+@Composable
+private fun TipValue(value: Float) {
+    Row(
+        modifier = Modifier.padding(top = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(text = "Tip")
+        Spacer(modifier = Modifier.weight(1f, true))
+        Text(text = "%.1f$".format(value))
+    }
+}
+
+@Composable
+fun TipPercentageBar(value: Float, onValueChange: (Float) -> Unit) {
+    Slider(value = value, onValueChange = {onValueChange(it)})
 }
 
 @Composable
