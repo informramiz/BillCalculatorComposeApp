@@ -78,8 +78,11 @@ private fun ScreenCanvas(content: @Composable () -> Unit) {
 
 @Composable
 private  fun ScreenUI() {
+    val perPersonBill = remember {
+        mutableStateOf(1f)
+    }
     Column {
-        PerPersonBill()
+        PerPersonBill(perPersonBill = perPersonBill.value)
         BillCalculator()
     }
 }
@@ -151,8 +154,9 @@ private fun BillCalculator() {
             TipValue(value = tipPercentageState.value * currentBillAmountState.value.toFloat())
 
             Text(
-                text = "${tipPercentageState.value * 100}%",
-                Modifier.padding(top = 12.dp, bottom = 12.dp)
+                text = "${(tipPercentageState.value * 100).toInt()}%",
+                Modifier
+                    .padding(top = 12.dp, bottom = 12.dp)
                     .align(Alignment.CenterHorizontally)
             )
 
@@ -196,7 +200,13 @@ private fun SplitBillBetweenButtons(value: Int, onValueChange: (Int) -> Unit) {
             shape = CircleShape,
             elevation = ButtonDefaults.elevation(),
             contentPadding = PaddingValues(0.dp),
-            onClick = { onValueChange(validValue + 1) }
+            onClick = {
+                if (validValue > 1) {
+                    onValueChange(validValue - 1)
+                } else {
+                    onValueChange(validValue)
+                }
+            }
         ) {
             Icon(imageVector = Icons.Rounded.Remove, contentDescription = "", tint = MaterialTheme.colors.onBackground)
         }
@@ -212,11 +222,7 @@ private fun SplitBillBetweenButtons(value: Int, onValueChange: (Int) -> Unit) {
             elevation = ButtonDefaults.elevation(),
             contentPadding = PaddingValues(0.dp),
             onClick = {
-                if (validValue > 1) {
-                    onValueChange(validValue - 1)
-                } else {
-                    onValueChange(validValue)
-                }
+                onValueChange(validValue + 1)
             }
         ) {
             Icon(imageVector = Icons.Rounded.Add, contentDescription = "", tint = MaterialTheme.colors.onBackground)
