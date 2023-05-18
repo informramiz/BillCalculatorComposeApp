@@ -79,7 +79,7 @@ private fun ScreenCanvas(content: @Composable () -> Unit) {
 @Composable
 private  fun ScreenUI() {
     val perPersonBill = remember {
-        mutableStateOf(1f)
+        mutableStateOf(0f)
     }
     Column {
         PerPersonBill(perPersonBill = perPersonBill.value)
@@ -120,11 +120,12 @@ private fun PerPersonBill(perPersonBill: Float = 0f) {
 @Composable
 private fun BillCalculator(onPersonBillChange: (Float) -> Unit) {
     val totalBillState = remember {
-        mutableStateOf("1")
+        mutableStateOf("")
     }
 
-    val isValidBillAmount = remember(totalBillState.value) {
-        totalBillState.value.isNotEmpty() && totalBillState.value.isDigitsOnly()
+    val validTotalBill = remember(totalBillState.value) {
+        val isBillValueValid = totalBillState.value.isNotEmpty() && totalBillState.value.isDigitsOnly()
+        if (isBillValueValid) totalBillState.value.toFloat() else 0f
     }
 
     val totalSplitsState = remember {
@@ -135,15 +136,14 @@ private fun BillCalculator(onPersonBillChange: (Float) -> Unit) {
         mutableStateOf(0.1f)
     }
 
-    val updatePerPersonBill = {
-        val perPersonBill =
-            calculatePerPersonBill(
-                isValidBillAmount,
-                totalBillState.value,
-                tipPercentageState.value,
-                totalSplitsState.value
-            )
+    remember(validTotalBill, totalSplitsState.value, tipPercentageState.value) {
+        val perPersonBill = calculatePerPersonBill(
+            validTotalBill,
+            tipPercentageState.value,
+            totalSplitsState.value
+        )
         onPersonBillChange(perPersonBill)
+        Any()
     }
 
     Surface(
@@ -156,17 +156,13 @@ private fun BillCalculator(onPersonBillChange: (Float) -> Unit) {
         Column(modifier = Modifier.padding(10.dp)) {
             BillTextField(totalBillState.value) { newBillValue ->
                 totalBillState.value = newBillValue
-                updatePerPersonBill()
             }
-
-            if (!isValidBillAmount) return@Column
 
             SplitBillBetweenButtons(value = totalSplitsState.value) { newValue ->
                 totalSplitsState.value = newValue
-                updatePerPersonBill()
             }
 
-            TipValue(value = tipPercentageState.value * totalBillState.value.toFloat())
+            TipValue(value = tipPercentageState.value * validTotalBill)
 
             Text(
                 text = "${(tipPercentageState.value * 100).toInt()}%",
@@ -177,20 +173,17 @@ private fun BillCalculator(onPersonBillChange: (Float) -> Unit) {
 
             TipPercentageBar(tipPercentageState.value) { newValue ->
                 tipPercentageState.value = newValue
-                updatePerPersonBill()
             }
         }
     }
 }
 
 private fun calculatePerPersonBill(
-    isValidBillAmount: Boolean,
-    totalBill: String,
+    totalBill: Float,
     tipPercentage: Float,
     totalSplits: Int
 ): Float {
-    val totalBillValid = if (isValidBillAmount) totalBill.toFloat() else 0f
-    val totalBillWithTip = totalBillValid + (totalBillValid * tipPercentage)
+    val totalBillWithTip = totalBill + (totalBill * tipPercentage)
     return totalBillWithTip / totalSplits
 }
 
